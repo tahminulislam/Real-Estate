@@ -1,0 +1,98 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | Velora Real Estate</title>
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="{% url 'login' %}" class="brand">
+        <span class="brand-icon">⌂</span>
+        <div>
+            <div class="brand-name">VELORA</div>
+            <div class="brand-subtitle">REAL ESTATE</div>
+        </div>
+    </a>
+
+    <nav class="nav-links">
+        <a class="optional" href="{% url 'login' %}">Home</a>
+        <a class="optional" href="#">Properties</a>
+        <a class="optional" href="#">About</a>
+        <a class="optional" href="#">Contact</a>
+        <a class="nav-button active" href="{% url 'login' %}">Login</a>
+        <a class="nav-button" href="{% url 'register' %}">Register</a>
+    </nav>
+</header>
+
+<main class="auth-layout">
+    <section class="hero">
+        <div class="hero-content">
+            <div class="eyebrow">Welcome back</div>
+            <h1>Login to Your Account</h1>
+            <p class="hero-description">
+                Access your dashboard, save your favorite
+                properties and more.
+            </p>
+
+            <ul class="benefits">
+                <li><span>♙</span> Manage Your Profile</li>
+                <li><span>♥</span> Save Favorite Properties</li>
+                <li><span>⚙</span> Get Personalized Recommendations</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="form-area">
+        <div class="form-card">
+            <div class="form-logo">⌂</div>
+            <h2>Welcome Back</h2>
+            <p class="form-intro">
+                Login to your Velora Real Estate account.
+            </p>
+
+            {% for message in messages %}
+                <div class="message-error">{{ message }}</div>
+            {% endfor %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="username">Username</label>
+                    <input id="username" type="text" name="username"
+                            placeholder="Enter your username"
+                            autocomplete="username" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password" required>
+                </div>
+
+                <button class="primary-button" type="submit">
+                    Login
+                </button>
+            </form>
+
+            <div class="form-footer">
+                <p>Don't have an account?</p>
+                <a href="{% url 'register' %}">Register here</a>
+            </div>
+
+            <div class="security-note">
+                <strong>♢ Your information is safe with us.</strong><br>
+                We take steps to protect your account information.
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

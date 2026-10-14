@@ -1,0 +1,188 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard | Velora Real Estate</title>
+    <link rel="stylesheet" href="{% static 'accounts/dashboard.css' %}">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <a href="{% url 'dashboard' %}" class="brand">
+            <span class="brand-icon">⌂</span>
+            <span>
+                <strong>VELORA</strong>
+                <small>REAL ESTATE</small>
+            </span>
+        </a>
+
+        <nav class="side-nav">
+            <a class="nav-item active" href="{% url 'dashboard' %}">
+                <span>▦</span> Dashboard
+            </a>
+            <a class="nav-item" href="#properties">
+                <span>⌂</span> My Properties
+            </a>
+            <a class="nav-item" href="#favorites">
+                <span>♥</span> Favorites
+            </a>
+            <a class="nav-item" href="#profile">
+                <span>♙</span> Profile
+            </a>
+            <a class="nav-item" href="#settings">
+                <span>⚙</span> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-decoration">⌂</div>
+            <p>Find your dream home with Velora Real Estate.</p>
+        </div>
+
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">
+                ↪ Logout
+            </button>
+        </form>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <form class="search-box" action="#properties" method="get">
+                <span>⌕</span>
+                <input type="search" name="q"
+                        placeholder="Search properties, locations...">
+            </form>
+
+            <div class="top-user">
+                <div class="avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+                <div class="user-details">
+                    <strong>Hello, {{ request.user.username }}</strong>
+                    <small>{{ request.user.email|default:"Velora Member" }}</small>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+
+            <section class="welcome-banner">
+                <div class="welcome-copy">
+                    <span>WELCOME BACK,</span>
+                    <h1>{{ request.user.username }} 👋</h1>
+                    <p>Here's what's happening with your real estate journey.</p>
+                    <a class="explore-button" href="#properties">
+                        Explore Properties <span>→</span>
+                    </a>
+                </div>
+            </section>
+
+            <section class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-icon blue">⌂</div>
+                    <h2>12</h2>
+                    <p>Total Properties</p>
+                    <small>Explore available properties</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon green">♥</div>
+                    <h2>3</h2>
+                    <p>Saved Properties</p>
+                    <small>Your favorite listings</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon purple">♙</div>
+                    <h2>1</h2>
+                    <p>Active Inquiries</p>
+                    <small>Your property inquiries</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon orange">★</div>
+                    <h2>2</h2>
+                    <p>Feedbacks</p>
+                    <small>Your recent feedback</small>
+                </article>
+            </section>
+
+            <section class="properties-section" id="properties">
+                <div class="section-heading">
+                    <div>
+                        <h2>Featured Properties</h2>
+                        <p>Explore properties selected for you.</p>
+                    </div>
+                    <a href="#properties">View All →</a>
+                </div>
+
+                <div class="property-grid">
+
+    {% for property in properties %}
+    <article class="property-card">
+
+        <div class="property-image">
+            {% if property.image %}
+                <img
+                    src="{{ property.image.url }}"
+                    alt="{{ property.title }}"
+                    class="property-photo"
+                >
+            {% endif %}
+
+            <span class="listing-badge">For Sale</span>
+        </div>
+
+        <div class="property-info">
+            <h3>{{ property.title }}</h3>
+
+            <strong class="price">
+                ${{ property.price|floatformat:0 }}
+            </strong>
+
+            <p class="location">
+                ⌖ {{ property.location }}
+            </p>
+
+            <div class="property-meta">
+                <span>{{ property.bedrooms }} Beds</span>
+                <span>{{ property.bathrooms }} Baths</span>
+            </div>
+
+            <p>{{ property.description|truncatechars:100 }}</p>
+
+            <a class="details-button" href="#properties">
+                View Details →
+            </a>
+        </div>
+
+    </article>
+
+    {% empty %}
+    <p class="empty-properties">
+        No properties are available right now.
+        Please check back later.
+    </p>
+    {% endfor %}
+
+</div>
+            </section>
+
+            <footer class="footer">
+                © 2026 Velora Real Estate. All rights reserved.
+            </footer>
+
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

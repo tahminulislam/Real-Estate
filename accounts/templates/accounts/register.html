@@ -1,0 +1,108 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register | Velora Real Estate</title>
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="{% url 'register' %}" class="brand">
+        <span class="brand-icon">⌂</span>
+        <div>
+            <div class="brand-name">VELORA</div>
+            <div class="brand-subtitle">REAL ESTATE</div>
+        </div>
+    </a>
+
+    <nav class="nav-links">
+        <a class="optional" href="{% url 'register' %}">Home</a>
+        <a class="optional" href="#">Properties</a>
+        <a class="optional" href="#">About</a>
+        <a class="optional" href="#">Contact</a>
+        <a class="nav-button" href="{% url 'login' %}">Login</a>
+        <a class="nav-button active" href="{% url 'register' %}">Register</a>
+    </nav>
+</header>
+
+<main class="auth-layout">
+    <section class="hero">
+        <div class="hero-content">
+            <div class="eyebrow">Welcome to</div>
+            <h1>Velora Real Estate</h1>
+            <p class="hero-description">
+                Find your dream home, build your future.
+            </p>
+
+            <ul class="benefits">
+                <li><span>⌂</span> Buy & Sell Properties</li>
+                <li><span>♢</span> Trusted & Secure</li>
+                <li><span>♧</span> Expert Support</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="form-area">
+        <div class="form-card">
+            <div class="form-logo">⌂</div>
+            <h2>Create Your Account</h2>
+            <p class="form-intro">
+                Join Velora Real Estate and start your journey
+                to find the perfect property.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="field">
+                        <label for="{{ field.id_for_label }}">
+                            {% if field.name == 'username' %}
+                                Username
+                            {% elif field.name == 'email' %}
+                                Email Address
+                            {% elif field.name == 'password1' %}
+                                Password
+                            {% elif field.name == 'password2' %}
+                                Confirm Password
+                            {% else %}
+                                {{ field.label }}
+                            {% endif %}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small class="helptext">{{ field.help_text|safe }}</small>
+                        {% endif %}
+
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+
+                {{ form.non_field_errors }}
+
+                <button class="primary-button" type="submit">
+                    Register
+                </button>
+            </form>
+
+            <div class="form-footer">
+                <p>Already have an account?</p>
+                <a href="{% url 'login' %}">Login here</a>
+            </div>
+
+            <div class="security-note">
+                <strong>♢ Your information is safe with us.</strong><br>
+                We take steps to protect your account information.
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>
