@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }} | Velora</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            background: #f5f7fb;
+            font-family: Arial, sans-serif;
+            color: #182235;
+        }
+        .card {
+            max-width: 650px;
+            margin: auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px #15274610;
+        }
+        h1 { margin-top: 0; }
+        label {
+            display: block;
+            margin: 18px 0 7px;
+            font-weight: bold;
+        }
+        input:not([type="checkbox"]),
+        textarea, select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #d9e1ec;
+            border-radius: 8px;
+        }
+        input[type="checkbox"] { margin-right: 8px; }
+        .error { color: #c43d46; }
+        button, .back {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 8px;
+            background: #3268c9;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .back { background: #e8edf5; color: #182235; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>{{ page_title }}</h1>
+    <p>Add the image, offer details and duration.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+                <small>{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+                <p class="error">{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+            <div class="error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <button type="submit">Save Offer</button>
+        <a class="back" href="{% url 'property_dashboard' %}">
+            Cancel
+        </a>
+    </form>
+</div>
+</body>
+</html>

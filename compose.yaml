@@ -1,0 +1,16 @@
+﻿
+services:
+  web:
+    build: .
+    container_name: velora-real-estate
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_PATH: /app/data/db.sqlite3
+    volumes:
+      - velora_data:/app/data
+    command: python manage.py runserver 0.0.0.0:8000
+
+volumes:
+  velora_data:
+    name: velorarealestate_velora_data

@@ -115,6 +115,205 @@
                 </article>
             </section>
 
+            
+{% if offers %}
+<section class="offers-section">
+    <div class="section-heading">
+        <div>
+            <h2>Featured Offers</h2>
+            <p>Discover our latest featured properties and offers.</p>
+        </div>
+    </div>
+
+    <div class="offer-slider" id="offerSlider">
+        {% for offer in offers %}
+        <article class="offer-slide {% if forloop.first %}active{% endif %}">
+            <a href="{% url 'offer_detail' offer.pk %}" class="offer-link">
+                {% if offer.image %}
+                    <img src="{{ offer.image.url }}" alt="{{ offer.title }}">
+                {% endif %}
+
+                <div class="offer-overlay">
+                    <span class="offer-label">FEATURED OFFER</span>
+                    <h2>{{ offer.title }}</h2>
+
+                    {% if offer.location %}
+                        <p>⌖ {{ offer.location }}</p>
+                    {% endif %}
+
+                    {% if offer.price %}
+                        <strong>${{ offer.price|floatformat:2 }}</strong>
+                    {% endif %}
+
+                    <span class="offer-details">View Details →</span>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+
+        {% if offers|length > 1 %}
+            <button class="offer-arrow prev" type="button"
+                    aria-label="Previous offer" onclick="changeOffer(-1)">&#10094;</button>
+            <button class="offer-arrow next" type="button"
+                    aria-label="Next offer" onclick="changeOffer(1)">&#10095;</button>
+            <div class="offer-dots">
+                {% for offer in offers %}
+                    <button type="button"
+                            class="offer-dot {% if forloop.first %}active{% endif %}"
+                            aria-label="Show offer {{ forloop.counter }}"
+                            onclick="showOffer({{ forloop.counter0 }})"></button>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.offers-section {
+    margin-bottom: 35px;
+}
+.offer-slider {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #101a2c;
+    min-height: 260px;
+}
+.offer-slide {
+    display: none;
+}
+.offer-slide.active {
+    display: block;
+    animation: offerFade .5s ease;
+}
+.offer-link {
+    display: block;
+    position: relative;
+    color: white;
+    text-decoration: none;
+    min-height: 260px;
+}
+.offer-link img {
+    display: block;
+    width: 100%;
+    height: 390px;
+    object-fit: cover;
+}
+.offer-overlay {
+    position: absolute;
+    inset: 0;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 9px;
+    background: linear-gradient(transparent, rgba(5, 13, 29, .9));
+}
+.offer-overlay h2 {
+    margin: 0;
+    font-size: clamp(22px, 4vw, 34px);
+}
+.offer-label {
+    background: #3268c9;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: bold;
+}
+.offer-details {
+    margin-top: 4px;
+    font-weight: bold;
+}
+.offer-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    color: #182235;
+    background: white;
+    font-size: 18px;
+}
+.offer-arrow.prev { left: 14px; }
+.offer-arrow.next { right: 14px; }
+.offer-dots {
+    position: absolute;
+    bottom: 14px;
+    right: 18px;
+    display: flex;
+    gap: 7px;
+}
+.offer-dot {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #cbd5e1;
+    cursor: pointer;
+}
+.offer-dot.active { background: white; }
+@keyframes offerFade {
+    from { opacity: .5; }
+    to { opacity: 1; }
+}
+@media (max-width: 600px) {
+    .offer-link img { height: 300px; }
+    .offer-overlay { padding: 18px; }
+}
+</style>
+
+<script>
+(function () {
+    const slider = document.getElementById("offerSlider");
+    if (!slider) return;
+
+    const slides = slider.querySelectorAll(".offer-slide");
+    const dots = slider.querySelectorAll(".offer-dot");
+    let current = 0;
+    let timer;
+
+    function show(index) {
+        slides[current].classList.remove("active");
+        if (dots.length) dots[current].classList.remove("active");
+
+        current = (index + slides.length) % slides.length;
+
+        slides[current].classList.add("active");
+        if (dots.length) dots[current].classList.add("active");
+    }
+
+    window.showOffer = function (index) {
+        show(index);
+        restart();
+    };
+
+    window.changeOffer = function (direction) {
+        show(current + direction);
+        restart();
+    };
+
+    function restart() {
+        if (timer) clearInterval(timer);
+        if (slides.length > 1) {
+            timer = setInterval(function () {
+                show(current + 1);
+            }, 5000);
+        }
+    }
+
+    restart();
+})();
+</script>
+{% endif %}
+
+
+            
+
             <section class="properties-section" id="properties">
                 <div class="section-heading">
                     <div>

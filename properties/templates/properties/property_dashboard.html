@@ -451,6 +451,98 @@
         </section>
 
         <section class="panel">
+            
+<section class="panel" style="margin-bottom: 28px;">
+    <div class="panel-header">
+        <div>
+            <h2>Featured Offers</h2>
+            <p class="muted">
+                Upload images, set durations and manage your promotional offers.
+            </p>
+        </div>
+
+        <a href="{% url 'offer_add' %}" class="btn btn-primary">
+            + Add New Offer
+        </a>
+    </div>
+
+    {% if offers %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Offer</th>
+                        <th>Duration</th>
+                        <th>Expires</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for offer in offers %}
+                    <tr>
+                        <td>
+                            <div class="property-cell">
+                                {% if offer.image %}
+                                    <img src="{{ offer.image.url }}"
+                                         class="property-image"
+                                         alt="{{ offer.title }}">
+                                {% endif %}
+                                <div>
+                                    <div class="property-title">
+                                        {{ offer.title }}
+                                    </div>
+                                    <div class="muted">ID: {{ offer.pk }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>{{ offer.get_duration_hours_display }}</td>
+                        <td>{{ offer.expires_at|date:"M d, Y H:i" }}</td>
+
+                        <td>
+                            {% if offer.is_currently_active %}
+                                <span class="status">Active</span>
+                            {% elif not offer.is_active %}
+                                <span class="status" style="background:#edf0f5;color:#596579;">
+                                    Disabled
+                                </span>
+                            {% else %}
+                                <span class="status" style="background:#fff0f0;color:#c43d46;">
+                                    Expired
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="actions">
+                                <a href="{% url 'offer_edit' offer.pk %}"
+                                   class="btn btn-edit">Edit</a>
+
+                                <form method="post"
+                                      action="{% url 'offer_delete' offer.pk %}"
+                                      onsubmit="return confirm('Delete this offer?');">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn btn-delete">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty">
+            <h3>No featured offers yet</h3>
+            <p>Add an offer to display it on the user dashboard.</p>
+        </div>
+    {% endif %}
+</section>
+
             <div class="panel-header">
                 <div>
                     <h2>Property Listings</h2>

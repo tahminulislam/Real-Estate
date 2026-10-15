@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ offer.title }} | Velora Real Estate</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            background: #f5f7fb;
+            color: #182235;
+            font-family: Arial, sans-serif;
+        }
+        .card {
+            max-width: 850px;
+            margin: auto;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+        }
+        img {
+            width: 100%;
+            max-height: 480px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .price { color: #245dbb; font-size: 24px; }
+        .back { color: #245dbb; }
+    </style>
+</head>
+<body>
+<main class="card">
+    {% if offer.image %}
+        <img src="{{ offer.image.url }}" alt="{{ offer.title }}">
+    {% endif %}
+
+    <h1>{{ offer.title }}</h1>
+
+    {% if offer.price %}
+        <p class="price">${{ offer.price|floatformat:2 }}</p>
+    {% endif %}
+
+    {% if offer.location %}
+        <p><strong>Location:</strong> {{ offer.location }}</p>
+    {% endif %}
+
+    <p>{{ offer.description|linebreaks }}</p>
+
+    {% if offer.is_currently_active %}
+        <p>Featured offer is currently active.</p>
+    {% else %}
+        <p>This offer is no longer active.</p>
+    {% endif %}
+
+    <a class="back" href="{% url 'property_list' %}">
+        ← Back to Properties
+    </a>
+</main>
+</body>
+</html>

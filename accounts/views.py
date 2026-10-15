@@ -4,7 +4,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegistrationForm
-from properties.models import Property
+from properties.models import Property, FeaturedOffer
+from django.utils import timezone
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -53,15 +54,27 @@ def login_view(request):
     return render(request, "accounts/login.html")
 
 
+
 @login_required
 def dashboard_view(request):
     properties = Property.objects.all()
 
+    now = timezone.now()
+    offers = FeaturedOffer.objects.filter(
+        is_active=True,
+        starts_at__lte=now,
+        expires_at__gt=now,
+    ).order_by("-starts_at")
+
     return render(
         request,
         "accounts/dashboard.html",
-        {"properties": properties},
+        {
+            "properties": properties,
+            "offers": offers,
+        },
     )
+
 
 
 @login_required

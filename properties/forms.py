@@ -1,5 +1,6 @@
+
 from django import forms
-from .models import Property
+from .models import Property, FeaturedOffer
 
 
 class PropertyForm(forms.ModelForm):
@@ -14,9 +15,23 @@ class PropertyForm(forms.ModelForm):
             "bedrooms",
             "bathrooms",
         ]
-
         widgets = {
-            "description": forms.Textarea(
-                attrs={"rows": 4}
-            ),
+            "description": forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+class FeaturedOfferForm(forms.ModelForm):
+    class Meta:
+        model = FeaturedOffer
+        fields = [
+            "title",
+            "image",
+            "description",
+            "price",
+            "location",
+            "duration_hours",
+            "is_active",
+        ]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 4}),
         }
