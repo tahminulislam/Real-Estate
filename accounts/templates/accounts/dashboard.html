@@ -55,11 +55,17 @@
     <main class="main-content">
 
         <header class="topbar">
-            <form class="search-box" action="#properties" method="get">
-                <span>⌕</span>
-                <input type="search" name="q"
-                        placeholder="Search properties, locations...">
-            </form>
+            
+<form action="{% url 'property_list' %}" method="get" class="search-form">
+    <input
+        type="search"
+        name="q"
+        placeholder="Search properties by name or location..."
+        value="{{ request.GET.q|default:'' }}"
+    >
+    <button type="submit">Search</button>
+</form>
+
 
             <div class="top-user">
                 <div class="avatar">

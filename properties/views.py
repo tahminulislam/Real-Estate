@@ -1,8 +1,10 @@
 
 from functools import wraps
+from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -21,11 +23,13 @@ def staff_required(view_func):
                 "You are not allowed to manage this page."
             )
         return view_func(request, *args, **kwargs)
+
     return wrapper
 
 
 def active_offers():
     now = timezone.now()
+
     return FeaturedOffer.objects.filter(
         is_active=True,
         starts_at__lte=now,
@@ -33,15 +37,104 @@ def active_offers():
     ).order_by("-starts_at")
 
 
-# Public property listing
+# Public property listing with search and filters
 def property_list(request):
     properties = Property.objects.all()
     offers = active_offers()
 
+    # Keyword search: title, location, description
+    search_query = request.GET.get("q", "").strip()
+
+    if search_query:
+        properties = properties.filter(
+            Q(title__icontains=search_query)
+            | Q(location__icontains=search_query)
+            | Q(description__icontains=search_query)
+        )
+
+    # Minimum price
+    min_price = request.GET.get("min_price", "").strip()
+
+    if min_price:
+        try:
+            min_value = Decimal(min_price)
+
+            if not min_value.is_finite() or min_value < 0:
+                raise InvalidOperation
+
+            properties = properties.filter(
+                price__gte=min_value
+            )
+
+        except (InvalidOperation, ValueError, TypeError):
+            min_price = ""
+
+    # Maximum price
+    max_price = request.GET.get("max_price", "").strip()
+
+    if max_price:
+        try:
+            max_value = Decimal(max_price)
+
+            if not max_value.is_finite() or max_value < 0:
+                raise InvalidOperation
+
+            properties = properties.filter(
+                price__lte=max_value
+            )
+
+        except (InvalidOperation, ValueError, TypeError):
+            max_price = ""
+
+    # Minimum bedrooms
+    bedrooms = request.GET.get("bedrooms", "").strip()
+
+    if bedrooms:
+        try:
+            bedroom_count = int(bedrooms)
+
+            if bedroom_count < 0:
+                raise ValueError
+
+            properties = properties.filter(
+                bedrooms__gte=bedroom_count
+            )
+
+        except (ValueError, TypeError):
+            bedrooms = ""
+
+    # Minimum bathrooms
+    bathrooms = request.GET.get("bathrooms", "").strip()
+
+    if bathrooms:
+        try:
+            bathroom_count = int(bathrooms)
+
+            if bathroom_count < 0:
+                raise ValueError
+
+            properties = properties.filter(
+                bathrooms__gte=bathroom_count
+            )
+
+        except (ValueError, TypeError):
+            bathrooms = ""
+
+    # Template context
+    context = {
+        "properties": properties,
+        "offers": offers,
+        "search_query": search_query,
+        "min_price": min_price,
+        "max_price": max_price,
+        "bedrooms": bedrooms,
+        "bathrooms": bathrooms,
+    }
+
     return render(
         request,
         "properties/property_list.html",
-        {"properties": properties, "offers": offers},
+        context,
     )
 
 
@@ -54,7 +147,10 @@ def property_dashboard(request):
     return render(
         request,
         "properties/property_dashboard.html",
-        {"properties": properties, "offers": offers},
+        {
+            "properties": properties,
+            "offers": offers,
+        },
     )
 
 
@@ -68,20 +164,32 @@ def property_add(request):
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Property added successfully!")
+
+        messages.success(
+            request,
+            "Property added successfully!",
+        )
+
         return redirect("property_dashboard")
 
     return render(
         request,
         "properties/property_form.html",
-        {"form": form, "page_title": "Add Property"},
+        {
+            "form": form,
+            "page_title": "Add Property",
+        },
     )
 
 
 # Edit property
 @staff_required
 def property_edit(request, pk):
-    property_obj = get_object_or_404(Property, pk=pk)
+    property_obj = get_object_or_404(
+        Property,
+        pk=pk,
+    )
+
     form = PropertyForm(
         request.POST or None,
         request.FILES or None,
@@ -90,13 +198,21 @@ def property_edit(request, pk):
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Property updated successfully!")
+
+        messages.success(
+            request,
+            "Property updated successfully!",
+        )
+
         return redirect("property_dashboard")
 
     return render(
         request,
         "properties/property_form.html",
-        {"form": form, "page_title": "Edit Property"},
+        {
+            "form": form,
+            "page_title": "Edit Property",
+        },
     )
 
 
@@ -104,13 +220,21 @@ def property_edit(request, pk):
 @staff_required
 @require_POST
 def property_delete(request, pk):
-    property_obj = get_object_or_404(Property, pk=pk)
+    property_obj = get_object_or_404(
+        Property,
+        pk=pk,
+    )
 
     if property_obj.image:
         property_obj.image.delete(save=False)
 
     property_obj.delete()
-    messages.success(request, "Property deleted successfully!")
+
+    messages.success(
+        request,
+        "Property deleted successfully!",
+    )
+
     return redirect("property_dashboard")
 
 
@@ -124,20 +248,32 @@ def offer_add(request):
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Featured offer added successfully!")
+
+        messages.success(
+            request,
+            "Featured offer added successfully!",
+        )
+
         return redirect("property_dashboard")
 
     return render(
         request,
         "properties/offer_form.html",
-        {"form": form, "page_title": "Add Featured Offer"},
+        {
+            "form": form,
+            "page_title": "Add Featured Offer",
+        },
     )
 
 
 # Edit featured offer
 @staff_required
 def offer_edit(request, pk):
-    offer = get_object_or_404(FeaturedOffer, pk=pk)
+    offer = get_object_or_404(
+        FeaturedOffer,
+        pk=pk,
+    )
+
     form = FeaturedOfferForm(
         request.POST or None,
         request.FILES or None,
@@ -146,13 +282,21 @@ def offer_edit(request, pk):
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Featured offer updated successfully!")
+
+        messages.success(
+            request,
+            "Featured offer updated successfully!",
+        )
+
         return redirect("property_dashboard")
 
     return render(
         request,
         "properties/offer_form.html",
-        {"form": form, "page_title": "Edit Featured Offer"},
+        {
+            "form": form,
+            "page_title": "Edit Featured Offer",
+        },
     )
 
 
@@ -160,21 +304,35 @@ def offer_edit(request, pk):
 @staff_required
 @require_POST
 def offer_delete(request, pk):
-    offer = get_object_or_404(FeaturedOffer, pk=pk)
+    offer = get_object_or_404(
+        FeaturedOffer,
+        pk=pk,
+    )
 
     if offer.image:
         offer.image.delete(save=False)
 
     offer.delete()
-    messages.success(request, "Featured offer deleted successfully!")
+
+    messages.success(
+        request,
+        "Featured offer deleted successfully!",
+    )
+
     return redirect("property_dashboard")
 
 
 # Public offer details
 def offer_detail(request, pk):
-    offer = get_object_or_404(FeaturedOffer, pk=pk)
+    offer = get_object_or_404(
+        FeaturedOffer,
+        pk=pk,
+    )
+
     return render(
         request,
         "properties/offer_detail.html",
-        {"offer": offer},
+        {
+            "offer": offer,
+        },
     )

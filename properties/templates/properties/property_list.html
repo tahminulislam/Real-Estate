@@ -150,6 +150,156 @@
             white-space: nowrap;
         }
 
+/* Property search and filters */
+.search-panel {
+    background: #fff;
+    border: 1px solid #e8edf4;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px #17233808;
+}
+
+.search-panel h3 {
+    font-size: 19px;
+    margin-bottom: 7px;
+}
+
+.search-subtitle {
+    color: #7a879a;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-field label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #526077;
+}
+
+.filter-field input {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+    background: #fff;
+    color: #172338;
+    font-size: 14px;
+    outline: none;
+}
+
+.filter-field input:focus {
+    border-color: #3775d6;
+    box-shadow: 0 0 0 3px #3775d61a;
+}
+
+.search-keyword {
+    grid-column: 1 / -1;
+}
+
+.filter-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.search-button {
+    min-height: 44px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 7px;
+    background: #3775d6;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.search-button:hover {
+    background: #245dbb;
+}
+
+.clear-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 17px;
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+    color: #526077;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.clear-button:hover {
+    background: #f1f5f9;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    background: #fff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.no-results h3 {
+    margin-bottom: 10px;
+}
+
+.no-results p {
+    color: #7a879a;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 900px) {
+    .search-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 500px) {
+    .search-panel {
+        padding: 18px;
+    }
+
+    .search-form {
+        grid-template-columns: 1fr;
+    }
+
+    .search-keyword,
+    .filter-actions {
+        grid-column: 1;
+    }
+
+    .filter-actions > * {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
         .property-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -399,9 +549,90 @@
         </div>
 
         <div class="listing-count">
-            {{ properties|length }} properties listed
+            {{ properties|length }} properties found
         </div>
     </div>
+    
+<form method="get" action="{% url 'property_list' %}"
+      class="search-panel" id="property-search">
+
+    <h3>Find Your Perfect Property</h3>
+    <p class="search-subtitle">
+        Search by keyword, set your budget, and choose your preferred home size.
+    </p>
+
+    <div class="search-form">
+
+        <div class="filter-field search-keyword">
+            <label for="search-q">Search keyword</label>
+            <input
+                type="search"
+                id="search-q"
+                name="q"
+                placeholder="Property name, location or keyword"
+                value="{{ search_query }}">
+        </div>
+
+        <div class="filter-field">
+            <label for="min-price">Minimum price</label>
+            <input
+                type="number"
+                id="min-price"
+                name="min_price"
+                min="0"
+                step="any"
+                placeholder="Minimum budget"
+                value="{{ min_price }}">
+        </div>
+
+        <div class="filter-field">
+            <label for="max-price">Maximum price</label>
+            <input
+                type="number"
+                id="max-price"
+                name="max_price"
+                min="0"
+                step="any"
+                placeholder="Maximum budget"
+                value="{{ max_price }}">
+        </div>
+
+        <div class="filter-field">
+            <label for="bedrooms">Minimum bedrooms</label>
+            <input
+                type="number"
+                id="bedrooms"
+                name="bedrooms"
+                min="0"
+                step="1"
+                placeholder="e.g. 3"
+                value="{{ bedrooms }}">
+        </div>
+
+        <div class="filter-field">
+            <label for="bathrooms">Minimum bathrooms</label>
+            <input
+                type="number"
+                id="bathrooms"
+                name="bathrooms"
+                min="0"
+                step="1"
+                placeholder="e.g. 2"
+                value="{{ bathrooms }}">
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="search-button">
+                Search Properties &rarr;
+            </button>
+
+            <a href="{% url 'property_list' %}" class="clear-button">
+                Clear Filters
+            </a>
+        </div>
+
+    </div>
+</form>
 
     <div class="property-grid">
         {% for property in properties %}
@@ -446,13 +677,19 @@
                 </div>
             </article>
         {% empty %}
-            <div class="empty-state">
-                <h3>Your next home is on its way.</h3>
-                <p>
-                    We are preparing our property listings.<br>
-                    Please check back soon for new properties.
-                </p>
-            </div>
+           
+<div class="no-results">
+    <h3>No matching properties found</h3>
+    <p>
+        Try changing your search keyword or adjusting your filters
+        to discover more properties.
+    </p>
+
+    <a href="{% url 'property_list' %}" class="clear-button">
+        Clear All Filters
+    </a>
+</div>
+
         {% endfor %}
     </div>
 </main>
