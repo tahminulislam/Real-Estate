@@ -62,3 +62,17 @@ jobs:
           tags: |
             ghcr.io/tahminulislam/real-estate:latest
             ghcr.io/tahminulislam/real-estate:${{ github.sha }}
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: docker-publish
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy to local Kubernetes
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          kubectl config current-context
+          kubectl set image deployment/velora web=ghcr.io/tahminulislam/real-estate:$env:IMAGE_TAG
+          kubectl rollout status deployment/velora --timeout=180s
